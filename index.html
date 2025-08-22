@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Game Predictor</title>
+    <!-- Load Tailwind CSS from CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load React and ReactDOM from CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Load Babel to transpile JSX code -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Load the Inter font from Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom spinner for loading state */
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- The root element where the React application will be rendered -->
+    <div id="root"></div>
+
+    <!-- The script tag with type="text/babel" tells Babel to transpile the code inside -->
+    <script type="text/babel">
+        // The main application component
+        const App = () => {
+            // State to hold the predictions, loading status, and any errors
+            const [predictions, setPredictions] = React.useState(null);
+            const [isLoading, setIsLoading] = React.useState(false);
+            const [error, setError] = React.useState(null);
+
+            // Function to simulate fetching data from a backend API
+            // In a real application, you would replace this with a fetch call to your Python backend
+            const fetchPredictions = async () => {
+                setIsLoading(true);
+                setError(null);
+                setPredictions(null);
+
+                // Simulate an API call with a delay
+                try {
+                    // Mock data representing the output of the Python script
+                    const mockData = [
+                        {
+                            GAME_ID: '2024102200',
+                            HOME_TEAM: 'LAL',
+                            AWAY_TEAM: 'GSW',
+                            PREDICTED_HOME_WIN: 1, // 1 for Home Win, 0 for Away Win
+                            HOME_WIN_PROBABILITY: 0.65,
+                            CONFIDENCE_SCORE: 8.5
+                        },
+                        {
+                            GAME_ID: '2024102201',
+                            HOME_TEAM: 'BOS',
+                            AWAY_TEAM: 'NYK',
+                            PREDICTED_HOME_WIN: 0,
+                            HOME_WIN_PROBABILITY: 0.42,
+                            CONFIDENCE_SCORE: 7.2
+                        },
+                        {
+                            GAME_ID: '2024102202',
+                            HOME_TEAM: 'DEN',
+                            AWAY_TEAM: 'MIA',
+                            PREDICTED_HOME_WIN: 1,
+                            HOME_WIN_PROBABILITY: 0.88,
+                            CONFIDENCE_SCORE: 9.1
+                        },
+                        {
+                            GAME_ID: '2024102203',
+                            HOME_TEAM: 'PHX',
+                            AWAY_TEAM: 'DAL',
+                            PREDICTED_HOME_WIN: 0,
+                            HOME_WIN_PROBABILITY: 0.49,
+                            CONFIDENCE_SCORE: 6.8
+                        }
+                    ];
+
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
+                    
+                    // Set the state with the mock data
+                    setPredictions(mockData);
+
+                } catch (err) {
+                    setError('Failed to fetch predictions. Please try again later.');
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const getWinner = (prediction) => {
+                return prediction.PREDICTED_HOME_WIN ? prediction.HOME_TEAM : prediction.AWAY_TEAM;
+            };
+
+            const getWinProbability = (prediction) => {
+                const prob = prediction.PREDICTED_HOME_WIN ? prediction.HOME_WIN_PROBABILITY : (1 - prediction.HOME_WIN_PROBABILITY);
+                return `${(prob * 100).toFixed(1)}%`;
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 p-8 flex flex-col items-center font-sans text-gray-800">
+                    {/* Main container with a clean, centered look */}
+                    <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg p-6 md:p-10 text-center">
+                        {/* Header Section */}
+                        <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-800 mb-4">
+                            NBA Game Predictor
+                        </h1>
+                        <p className="text-sm text-gray-600 mb-8">
+                            Get today's game predictions based on team statistics and historical data.
+                        </p>
+
+                        {/* Prediction Button and UI */}
+                        <button
+                            onClick={fetchPredictions}
+                            disabled={isLoading}
+                            className={`
+                                w-full md:w-auto px-8 py-3 rounded-full text-lg font-bold transition-all duration-300
+                                ${isLoading
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:scale-105'
+                                }
+                            `}
+                        >
+                            {isLoading ? 'Loading...' : 'Get Today\'s Predictions'}
+                        </button>
+
+                        {/* Loading and Error States */}
+                        {isLoading && (
+                            <div className="mt-8 flex justify-center items-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                <span className="ml-4 text-gray-600">Generating predictions...</span>
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="mt-8 text-red-600 font-medium bg-red-100 p-4 rounded-lg">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Predictions Display */}
+                        {predictions && (
+                            <div className="mt-12 w-full">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                                    Today's Predicted Games
+                                </h2>
+                                
+                                {/* Responsive table-like layout using flexbox and grid */}
+                                <div className="w-full space-y-4">
+                                    {predictions.map((pred, index) => (
+                                        <div
+                                            key={index}
+                                            className="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-200 transition-shadow hover:shadow-md"
+                                        >
+                                            <div className="flex flex-col md:flex-row items-center justify-between text-left">
+                                                <div className="flex-1 min-w-0 mb-4 md:mb-0">
+                                                    <div className="text-sm font-semibold text-gray-500">MATCHUP</div>
+                                                    <div className="text-xl font-extrabold text-blue-800 truncate">
+                                                        {pred.AWAY_TEAM} @ {pred.HOME_TEAM}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex-1 min-w-0 mb-4 md:mb-0">
+                                                    <div className="text-sm font-semibold text-gray-500">PREDICTED WINNER</div>
+                                                    <div className="text-xl font-bold text-blue-600 truncate">
+                                                        {getWinner(pred)}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex-1 min-w-0 mb-4 md:mb-0">
+                                                    <div className="text-sm font-semibold text-gray-500">WIN PROBABILITY</div>
+                                                    <div className="text-xl font-bold text-green-600 truncate">
+                                                        {getWinProbability(pred)}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-semibold text-gray-500">CONFIDENCE</div>
+                                                    <div className="text-xl font-bold text-purple-600 truncate">
+                                                        {pred.CONFIDENCE_SCORE.toFixed(1)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the App component to the 'root' div
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(
+            <React.StrictMode>
+                <App />
+            </React.StrictMode>
+        );
+    </script>
+</body>
+</html>
