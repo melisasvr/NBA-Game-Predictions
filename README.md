@@ -17,6 +17,7 @@ Welcome to the NBA Game Predictor! This single-page web application provides a c
 - The current version of the app uses static mock data for demonstration. To make it a live, functional application, you will need to:
 - Create an API: Use a Python web framework like Flask or FastAPI to create an API endpoint from your nba_game_prediction.py script. This API should handle requests and return the prediction data as JSON.
 - Update the Code: Modify the fetchPredictions function in the index.html file to make a fetch call to your new API endpoint.
+- This will allow the app to pull real-time data from your prediction model and display it dynamically.
 
 ## Contributing
 - Fork the repository
@@ -28,6 +29,5 @@ Welcome to the NBA Game Predictor! This single-page web application provides a c
 ## License
 - This project is licensed under the MIT License - see the LICENSE file for details.
 
-This will allow the app to pull real-time data from your prediction model and display it dynamically.
-
-Enjoy the app! Let the data do the talking. 📊
+---
+- Enjoy the app! Let the data do the talking. 📊
